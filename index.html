@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SLICE NAIRA · touchless fruit slicing</title>
+<meta name="description" content="Touchless, accessible gaming and fun physical therapy. Slice fruit with your fingertip through your webcam.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<video id="webcam" playsinline muted autoplay></video>
+<div class="grid-bg"></div>
+<canvas id="game"></canvas>
+
+<!-- ============ LANDING ============ -->
+<section id="s-landing" class="screen on">
+  <header class="topbar">
+    <div class="brand">SLICE<span>NAIRA</span></div>
+    <div class="wallet">₦<b class="wv">0</b></div>
+  </header>
+  <main class="hero">
+    <p class="prompt">&gt; boot slice-naira v1.0 --touchless</p>
+    <h1 class="title">SLICE <span>NAIRA</span></h1>
+    <p class="pitch">Touchless, accessible gaming — and fun physical therapy.</p>
+    <p class="typed"><span id="typed"></span><span class="cursor">_</span></p>
+    <div class="cta-row">
+      <button class="btn big" data-act="play">▶ PLAY WITH CAMERA</button>
+      <button class="btn" data-act="mouse">🖱 MOUSE / TOUCH</button>
+    </div>
+    <div class="menu-row">
+      <button class="btn ghost" data-go="daily">DAILY <span id="streak-chip" class="chip"></span></button>
+      <button class="btn ghost" data-go="shop">SHOP</button>
+      <button class="btn ghost" data-go="stats">STATS</button>
+      <button class="btn ghost" data-act="rehab">REHAB MODE: <b class="rehab-state">OFF</b></button>
+      <button class="btn ghost" data-act="mute">SOUND: <b class="mute-state">ON</b></button>
+    </div>
+  </main>
+  <footer class="foot">Virtual ₦ only · no real money · camera frames never leave your browser</footer>
+</section>
+
+<!-- ============ CAMERA + CALIBRATION ============ -->
+<section id="s-camera" class="screen">
+  <div class="page narrow">
+    <p class="prompt">&gt; camera --init</p>
+    <h2>CAMERA SETUP</h2>
+    <div id="cam-status" class="status"><span class="spinner"></span><span id="cam-msg">Requesting camera access…</span></div>
+    <div id="cam-calib" class="hidden">
+      <p class="prompt">&gt; calibrate --wave</p>
+      <p class="hint">Wave your index finger left ↔ right three times.</p>
+      <div class="meter"><i id="calib-bar"></i></div>
+      <p class="dim" id="calib-state">waiting for hand…</p>
+    </div>
+    <div id="cam-err" class="error hidden"></div>
+    <div class="row">
+      <button class="btn" data-act="cam-retry">RETRY CAMERA</button>
+      <button class="btn ghost" data-act="mouse">USE MOUSE / TOUCH</button>
+      <button class="btn ghost hidden" id="skip-calib" data-act="skip-calib">SKIP CALIBRATION</button>
+      <button class="btn ghost" data-go="landing">← BACK</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LEVELS ============ -->
+<section id="s-levels" class="screen">
+  <div class="page">
+    <header class="page-head">
+      <div><p class="prompt">&gt; ls ./levels --sort=unlock</p><h2>SELECT LEVEL</h2></div>
+      <div class="head-r"><div class="wallet">₦<b class="wv">0</b></div><button class="btn ghost" data-go="landing">← MENU</button></div>
+    </header>
+    <div id="level-grid" class="level-grid"></div>
+    <div class="row">
+      <button class="btn ghost" data-act="recal">RECALIBRATE</button>
+      <button class="btn ghost" data-act="rehab">REHAB MODE: <b class="rehab-state">OFF</b></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DAILY ============ -->
+<section id="s-daily" class="screen">
+  <div class="page">
+    <header class="page-head">
+      <div><p class="prompt">&gt; cron --daily</p><h2>DAILY</h2></div>
+      <div class="head-r"><div class="wallet">₦<b class="wv">0</b></div><button class="btn ghost" data-go="landing">← MENU</button></div>
+    </header>
+    <div class="grid2">
+      <div class="card">
+        <h3>DAILY CHALLENGE</h3>
+        <p id="daily-info" class="dim"></p>
+        <p class="dim">60 seconds · same seed for everyone today · first run pays a ×0.5 bonus on score.</p>
+        <button class="btn big" data-act="play-daily">▶ START DAILY</button>
+        <p class="dim" id="daily-best"></p>
+      </div>
+      <div class="card">
+        <h3>LOGIN STREAK <span id="flame" class="flame"></span></h3>
+        <p id="streak-text" class="dim"></p>
+        <div id="streak-days" class="days"></div>
+        <button class="btn" id="claim-btn" data-act="claim">CLAIM TODAY</button>
+      </div>
+    </div>
+    <div class="card"><h3>DAILY MISSIONS</h3><div id="missions"></div></div>
+    <div class="card"><h3>LEADERBOARD · LOCAL TOP 10</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>PLAYER</th><th>SCORE</th><th>MODE</th><th>DATE</th></tr></thead><tbody id="lb-body"></tbody></table></div></div>
+  </div>
+</section>
+
+<!-- ============ SHOP ============ -->
+<section id="s-shop" class="screen">
+  <div class="page">
+    <header class="page-head">
+      <div><p class="prompt">&gt; shop --list</p><h2>SHOP</h2></div>
+      <div class="head-r"><div class="wallet">₦<b class="wv">0</b></div><button class="btn ghost" data-go="landing">← MENU</button></div>
+    </header>
+    <div id="shop-grid" class="shop-grid"></div>
+    <p class="dim small">Cosmetics cost virtual ₦ only. Nothing here is real money.</p>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section id="s-stats" class="screen">
+  <div class="page">
+    <header class="page-head">
+      <div><p class="prompt">&gt; stats --all</p><h2>STATS</h2></div>
+      <div class="head-r"><div class="wallet">₦<b class="wv">0</b></div><button class="btn ghost" data-go="landing">← MENU</button></div>
+    </header>
+    <div class="grid2">
+      <div class="card">
+        <h3>PROFILE</h3>
+        <label class="field">PLAYER NAME <input id="name-input" maxlength="14" value="anon"></label>
+        <div id="profile"></div>
+      </div>
+      <div class="card">
+        <h3>BEST SCORES</h3>
+        <div id="best-list"></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>REHAB · RANGE OF MOTION</h3>
+        <p class="dim small">Average reach across your last 10 sessions (% of screen from centre).</p>
+        <div id="reach-bars" class="bars"></div>
+      </div>
+      <div class="card">
+        <h3>REHAB · SESSION HISTORY</h3>
+        <p class="dim small">Reps (fruits sliced) per session, most recent right.</p>
+        <canvas id="hist" class="hist"></canvas>
+        <div id="rehab-list" class="small dim"></div>
+      </div>
+    </div>
+    <div class="row"><button class="btn ghost danger" data-act="reset">RESET ALL LOCAL DATA</button></div>
+  </div>
+</section>
+
+<!-- ============ GAME HUD ============ -->
+<section id="s-game" class="screen hud-screen">
+  <div class="hud">
+    <div class="hud-l">
+      <div class="hud-line">&gt; LVL <span id="h-lvl">--</span> · <span id="h-level">--</span></div>
+      <div class="hud-score">₦<b id="h-score">0</b></div>
+      <div class="hud-sub" id="h-streak"></div>
+    </div>
+    <div class="hud-c"><div id="h-lives" class="lives"></div></div>
+    <div class="hud-r">
+      <div class="wallet">₦<b id="h-wallet">0</b></div>
+      <button class="btn ghost small pointer" data-act="pause">❚❚ PAUSE [P]</button>
+    </div>
+    <div class="target-bar"><i id="h-target"></i><span id="h-target-txt"></span></div>
+  </div>
+  <div id="banner" class="banner"></div>
+  <div id="countdown" class="countdown"></div>
+</section>
+
+<!-- ============ PAUSE ============ -->
+<div id="s-pause" class="modal">
+  <div class="panel center">
+    <p class="prompt">&gt; kill -STOP $$</p>
+    <h2>PAUSED</h2>
+    <div class="col">
+      <button class="btn big" data-act="resume">▶ RESUME</button>
+      <button class="btn" data-act="restart">↻ RESTART RUN</button>
+      <button class="btn" data-act="mute">SOUND: <b class="mute-state">ON</b></button>
+      <button class="btn ghost" data-act="quit">⏏ QUIT TO LEVELS</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GAME OVER ============ -->
+<div id="s-over" class="modal">
+  <div class="panel">
+    <p class="prompt" id="over-exit">&gt; exit 1</p>
+    <h2 id="over-title">RUN ENDED</h2>
+    <div id="over-stars" class="stars"></div>
+    <div id="over-stats" class="kvs"></div>
+    <div class="row">
+      <button class="btn big" id="over-next" data-act="next">NEXT LEVEL ▶</button>
+      <button class="btn" data-act="retry">↻ PLAY AGAIN</button>
+      <button class="btn" data-act="share">⇪ SHARE</button>
+      <button class="btn ghost" data-act="quit">LEVELS</button>
+      <button class="btn ghost" data-go="landing">MENU</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous" defer></script>
+<script src="storage.js" defer></script>
+<script src="hand.js" defer></script>
+<script src="game.js" defer></script>
+</body>
+</html>
